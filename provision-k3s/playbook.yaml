@@ -1,0 +1,31 @@
+- name: Provision K3s Control Plane and Nodes
+  hosts: all
+  become: true
+  roles:
+    - { role: control-plane, when: "'control-planes' in group_names" }
+    - { role: node, when: "'nodes' in group_names" }
+
+- name: Copy kubeconfig from control plane to local machine
+  hosts: control-planes
+  become: true
+  tasks:
+
+    - name: Fetch kubeconfig from control plane
+      fetch:
+        src: /etc/rancher/k3s/k3s.yaml
+        dest: /tmp/k3s.yaml
+        flat: true
+
+    - name: Copy kubeconfig to local machine
+      delegate_to: localhost
+      local_action:
+        module: copy
+        src: /tmp/k3s.yaml
+        dest: ~/.kube/k3s.yaml
+
+    - name: Update kubeconfig permissions
+      delegate_to: localhost
+      local_action:
+        module: file
+        path: ~/.kube/k3s.yaml
+        mode: '0600'
