@@ -4,13 +4,13 @@ control-planes:
     ansible_user: vagrant
   hosts:
     bootstrap-master:
-      ansible_host: 192.168.3.126
+      ansible_host: 192.168.100.101
       ansible_user: vagrant
-      ansible_ssh_private_key_file: /home/mustybatz/.ssh/id_ed25519
+      ansible_ssh_private_key_file: /home/keylab/.ssh/id_ed25519
 
 nodes:
   hosts:
     node1:
-      ansible_host: 192.168.3.127
+      ansible_host: 192.168.100.102
       ansible_user: vagrant
-      ansible_ssh_private_key_file: /home/mustybatz/.ssh/id_ed25519
+      ansible_ssh_private_key_file: /home/keylab/.ssh/id_ed25519

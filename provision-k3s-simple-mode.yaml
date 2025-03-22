@@ -19,10 +19,10 @@
 - name: Fix and install kubeconfig locally
   hosts: localhost
   become: true
-  become_user: mustybatz
+  become_user: keylab
   vars:
     kubeconfig_source: "/tmp/k3s.yaml"
-    kubeconfig_dest: "/home/mustybatz/.kube/k3s.yaml"
+    kubeconfig_dest: "/home/keylab/.kube/k3s.yaml"
   tasks:
 
     - name: Get control-plane IP from inventory
