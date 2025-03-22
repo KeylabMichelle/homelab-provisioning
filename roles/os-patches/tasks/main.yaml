@@ -1,0 +1,19 @@
+---
+- name: Update apt cache
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: Upgrade installed packages
+  apt:
+    upgrade: yes
+
+- name: Perform full upgrade
+  apt:
+    upgrade: full
+  when: perform_full_upgrade
+
+- name: Autoremove unused packages
+  apt:
+    autoremove: yes
+  when: autoremove

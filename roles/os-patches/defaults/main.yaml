@@ -1,0 +1,4 @@
+---
+# Default variables
+perform_full_upgrade: false
+autoremove: true
