@@ -1,0 +1,91 @@
+- name: Provision K3s Control Plane and Nodes
+  hosts: all
+  become: true
+  roles:
+    - { role: os-patches }
+    - { role: control-plane, when: "'control-planes' in group_names" }
+    - { role: node, when: "'nodes' in group_names" }
+
+- name: Fetch kubeconfig from control plane
+  hosts: control-planes
+  become: true
+  tasks:
+    - name: Fetch kubeconfig file
+      fetch:
+        src: /etc/rancher/k3s/k3s.yaml
+        dest: /tmp/k3s.yaml
+        flat: true
+
+- name: Fix and install kubeconfig locally
+  hosts: localhost
+  become: true
+  become_user: mustybatz
+  vars:
+    kubeconfig_source: "/tmp/k3s.yaml"
+    kubeconfig_dest: "/home/mustybatz/.kube/k3s.yaml"
+  tasks:
+
+    - name: Get control-plane IP from inventory
+      set_fact:
+        control_plane_ip: "{{ hostvars['bootstrap-master'].ansible_host }}"
+
+    - name: Ensure .kube directory exists
+      file:
+        path: "{{ kubeconfig_dest | dirname }}"
+        state: directory
+        mode: '0700'
+
+    - name: Replace 127.0.0.1 with control-plane IP in kubeconfig
+      replace:
+        path: "{{ kubeconfig_source }}"
+        regexp: 'https://127\.0\.0\.1:6443'
+        replace: "https://{{ control_plane_ip }}:6443"
+
+    - name: Generate random string using shell
+      shell: "head /dev/urandom | tr -dc A-Za-z | head -c 5"
+      register: randstr
+
+    - name: Set cluster name fact
+      set_fact:
+        new_cluster_name: "k3s-vagrant-{{ randstr.stdout }}"
+
+    - name: Replace cluster name in kubeconfig
+      replace:
+        path: "{{ kubeconfig_source }}"
+        regexp: '^  name: default$'
+        replace: "  name: {{ new_cluster_name }}"
+
+    - name: Replace context cluster reference
+      replace:
+        path: "{{ kubeconfig_source }}"
+        regexp: '^    cluster: default$'
+        replace: "    cluster: {{ new_cluster_name }}"
+
+    - name: Replace user name reference
+      replace:
+        path: "{{ kubeconfig_source }}"
+        regexp: '^    user: default$'
+        replace: "    user: {{ new_cluster_name }}"
+
+    - name: Replace user block name
+      replace:
+        path: "{{ kubeconfig_source }}"
+        regexp: '^- name: default$'
+        replace: "- name: {{ new_cluster_name }}"
+
+    - name: Replace current context
+      replace:
+        path: "{{ kubeconfig_source }}"
+        regexp: '^current-context: default$'
+        replace: "current-context: {{ new_cluster_name }}"
+
+    - name: Copy modified kubeconfig to ~/.kube/k3s.yaml
+      copy:
+        src: "{{ kubeconfig_source }}"
+        dest: "{{ kubeconfig_dest }}"
+        mode: '0600'
+
+    - name: Print confirmation message
+      debug:
+        msg: "Kubeconfig installed at {{ kubeconfig_dest }} with cluster/context/user renamed to {{ new_cluster_name }}"
+

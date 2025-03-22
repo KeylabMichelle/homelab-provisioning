@@ -1,5 +1,6 @@
 - name: Join the K3s cluster
   shell: |
-    curl -sfL https://get.k3s.io | K3S_URL=https://{{ hostvars['k8s-cthulhu-1']['k3s_server_ip'] }}:6443 K3S_TOKEN={{ hostvars['k8s-cthulhu-1']['k3s_join_token'] }} sh -
+    curl -sfL https://get.k3s.io | K3S_URL=https://{{ hostvars['bootstrap-master']['k3s_server_ip'] }}:6443 K3S_TOKEN={{ hostvars['bootstrap-master']['k3s_join_token'] }} INSTALL_K3S_EXEC="--node-external-ip {{ hostvars['bootstrap-master']['k3s_server_ip'] }}" sh -
   args:
     executable: /bin/bash
+

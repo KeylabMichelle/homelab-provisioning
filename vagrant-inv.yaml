@@ -3,20 +3,14 @@ control-planes:
     # Global SSH and interpreter settings
     ansible_user: vagrant
   hosts:
-    master:
-      ansible_host: 192.168.3.105
-      ansible_ssh_private_key_file: /home/mustybatz/.ssh/master_private_key
+    bootstrap-master:
+      ansible_host: 192.168.3.126
+      ansible_user: vagrant
+      ansible_ssh_private_key_file: /home/mustybatz/.ssh/id_ed25519
 
 nodes:
   hosts:
     node1:
-      ansible_host: 192.168.3.106
-      ansible_ssh_private_key_file: /home/mustybatz/.ssh/node1_private_key
-
-    node2:
-      ansible_host: 192.168.3.107
-      ansible_ssh_private_key_file: /home/mustybatz/.ssh/node2_private_key
-
-    node3:
-      ansible_host: 192.168.3.108
-      ansible_ssh_private_key_file: /home/mustybatz/.ssh/node3_private_key
+      ansible_host: 192.168.3.127
+      ansible_user: vagrant
+      ansible_ssh_private_key_file: /home/mustybatz/.ssh/id_ed25519

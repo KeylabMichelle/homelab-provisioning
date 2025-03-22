@@ -1,6 +1,6 @@
 - name: Install K3s on the control plane
   shell: |
-    curl -sfL https://get.k3s.io | sh -s - --write-kubeconfig-mode 644
+    curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="--node-external-ip {{ ansible_host }} --flannel-external-ip" sh -
   args:
     executable: /bin/bash
 
